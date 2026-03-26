@@ -1,105 +1,95 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrega Fácil</title>
+    <title>Teste Entrega Facil</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .hidden { display: none !important; }
-    </style>
 </head>
-<body class="bg-blue-600">
+<body class="bg-gray-200">
 
-    <!-- TELA DE SELEÇÃO (ID: tela-inicio) -->
-    <div id="tela-inicio" class="fixed inset-0 flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
-            <h1 class="text-2xl font-bold mb-6 text-gray-800">Entrega Fácil</h1>
-            <button onclick="mudarPara('vendedor')" class="w-full mb-3 bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700">Sou Vendedor</button>
-            <button onclick="mudarPara('comprador')" class="w-full border-2 border-blue-600 text-blue-600 py-4 rounded-xl font-bold hover:bg-blue-50">Sou Comprador</button>
+    <!-- TELA DE ESCOLHA -->
+    <div id="tela_selecao" style="display: block;" class="fixed inset-0 bg-blue-600 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
+            <h1 class="text-2xl font-bold mb-6">Entrega Fácil</h1>
+            <button onclick="entrar('vendedor')" class="w-full bg-blue-600 text-white p-4 rounded mb-2 font-bold">ENTRAR COMO VENDEDOR</button>
+            <button onclick="entrar('comprador')" class="w-full border-2 border-blue-600 text-blue-600 p-4 rounded font-bold">ENTRAR COMO COMPRADOR</button>
         </div>
     </div>
 
-    <!-- PAINEL PRINCIPAL (ID: app) -->
-    <div id="app" class="hidden min-h-screen bg-gray-100">
-        <header class="bg-white p-4 shadow flex justify-between items-center">
-            <b class="text-blue-600">Entrega Fácil</b>
-            <button onclick="location.reload()" class="text-xs bg-gray-200 px-2 py-1 rounded">Sair</button>
-        </header>
-
-        <!-- CONTEÚDO VENDEDOR -->
-        <div id="view-vendedor" class="p-4 hidden">
-            <h2 class="font-bold mb-4">Painel do Vendedor</h2>
-            <div class="bg-white p-4 rounded-xl shadow">
-                <input id="inp-nome" placeholder="Produto" class="w-full border p-2 mb-2 rounded">
-                <input id="inp-preco" type="number" placeholder="Preço R$" class="w-full border p-2 mb-4 rounded">
-                <button onclick="salvarProduto()" class="w-full bg-green-500 text-white py-2 rounded font-bold">Postar Anúncio</button>
-            </div>
-            <div id="meus-itens" class="mt-4 space-y-2"></div>
+    <!-- TELA DO APP -->
+    <div id="tela_app" style="display: none;" class="p-4">
+        <div class="bg-white p-4 rounded shadow flex justify-between mb-4">
+            <span id="txt_perfil" class="font-bold uppercase text-blue-600"></span>
+            <button onclick="location.reload()" class="text-red-500">Sair</button>
         </div>
 
-        <!-- CONTEÚDO COMPRADOR -->
-        <div id="view-comprador" class="p-4 hidden">
-            <h2 class="font-bold mb-4">Vitrine do Prédio</h2>
-            <div id="vitrine" class="grid grid-cols-1 gap-4"></div>
+        <!-- AREA VENDEDOR -->
+        <div id="area_vendedor" style="display: none;">
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-bold mb-2">Novo Produto</h2>
+                <input id="n" placeholder="Nome" class="border p-2 w-full mb-2">
+                <input id="p" placeholder="Preço" type="number" class="border p-2 w-full mb-2">
+                <button onclick="add()" class="w-full bg-green-500 text-white p-2 rounded">CADASTRAR</button>
+            </div>
+        </div>
+
+        <!-- AREA COMPRADOR -->
+        <div id="area_comprador" style="display: none;">
+            <h2 class="font-bold mb-4">Vitrine de Vizinhos</h2>
+            <div id="vitrine" class="space-y-2"></div>
         </div>
     </div>
 
     <script>
-        // Banco de dados temporário
-        let produtos = [
-            { nome: "Bolo de Pote", preco: 12, autor: "Apto 22" },
-            { nome: "Pizza Caseira", preco: 45, autor: "Apto 54" }
+        // Teste de carregamento
+        console.log("Sistema pronto!");
+
+        let dados = [
+            {nome: "Bolo", preco: 10, dono: "Apto 10"},
+            {nome: "Suco", preco: 5, dono: "Apto 20"}
         ];
 
-        function mudarPara(perfil) {
-            // Esconde a tela azul
-            document.getElementById('tela-inicio').classList.add('hidden');
-            // Mostra o fundo cinza
-            document.getElementById('app').classList.remove('hidden');
-            // Remove a cor azul do fundo do body
-            document.body.classList.remove('bg-blue-600');
+        function entrar(tipo) {
+            // Esconde seleção, mostra app
+            document.getElementById('tela_selecao').style.display = 'none';
+            document.getElementById('tela_app').style.display = 'block';
+            document.getElementById('txt_perfil').innerText = "Perfil: " + tipo;
 
-            if(perfil === 'vendedor') {
-                document.getElementById('view-vendedor').classList.remove('hidden');
-                atualizarListaVendedor();
+            if(tipo === 'vendedor') {
+                document.getElementById('area_vendedor').style.display = 'block';
+                document.getElementById('area_comprador').style.display = 'none';
             } else {
-                document.getElementById('view-comprador').classList.remove('hidden');
-                atualizarVitrine();
+                document.getElementById('area_comprador').style.display = 'block';
+                document.getElementById('area_vendedor').style.display = 'none';
+                mostrarVitrine();
             }
         }
 
-        function salvarProduto() {
-            const n = document.getElementById('inp-nome').value;
-            const p = document.getElementById('inp-preco').value;
-            if(!n || !p) return alert("Preencha os campos!");
+        function add() {
+            let nome = document.getElementById('n').value;
+            let preco = document.getElementById('p').value;
+            if(!nome || !preco) return alert("Preencha os campos");
             
-            produtos.push({ nome: n, preco: p, autor: "Meu Apto" });
-            alert("Sucesso!");
-            document.getElementById('inp-nome').value = "";
-            document.getElementById('inp-preco').value = "";
-            atualizarListaVendedor();
+            dados.push({nome: nome, preco: preco, dono: "Meu Apto"});
+            alert("Produto cadastrado com sucesso!");
+            document.getElementById('n').value = "";
+            document.getElementById('p').value = "";
         }
 
-        function atualizarListaVendedor() {
-            const div = document.getElementById('meus-itens');
-            div.innerHTML = produtos.filter(x => x.autor === "Meu Apto").map(x => `
-                <div class="bg-white p-3 rounded border font-medium">${x.nome} - R$ ${x.preco}</div>
-            `).join('');
-        }
-
-        function atualizarVitrine() {
-            const div = document.getElementById('vitrine');
-            div.innerHTML = produtos.map(x => `
-                <div class="bg-white p-4 rounded-xl shadow flex justify-between items-center">
-                    <div>
-                        <div class="text-xs text-blue-500 font-bold">${x.autor}</div>
-                        <div class="font-bold text-lg">${x.nome}</div>
-                        <div class="text-xl font-bold text-gray-800">R$ ${x.preco}</div>
+        function mostrarVitrine() {
+            let lista = document.getElementById('vitrine');
+            lista.innerHTML = "";
+            dados.forEach(item => {
+                lista.innerHTML += `
+                    <div class="bg-white p-4 rounded shadow flex justify-between items-center">
+                        <div>
+                            <b>${item.nome}</b><br>R$ ${item.preco} 
+                            <small class="block text-gray-400">${item.dono}</small>
+                        </div>
+                        <button class="bg-blue-600 text-white px-3 py-1 rounded">Comprar</button>
                     </div>
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Comprar</button>
-                </div>
-            `).join('');
+                `;
+            });
         }
     </script>
 </body>
