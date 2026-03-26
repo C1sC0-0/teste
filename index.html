@@ -1,95 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Teste Entrega Facil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrega Fácil | Condomínio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .active-tab { color: #2563eb; }
+        .hidden { display: none !important; }
+        .cart-bounce { animation: bounce 0.3s ease; }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    </style>
 </head>
-<body class="bg-gray-200">
+<body class="bg-gray-50 pb-24">
 
-    <!-- TELA DE ESCOLHA -->
-    <div id="tela_selecao" style="display: block;" class="fixed inset-0 bg-blue-600 flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
-            <h1 class="text-2xl font-bold mb-6">Entrega Fácil</h1>
-            <button onclick="entrar('vendedor')" class="w-full bg-blue-600 text-white p-4 rounded mb-2 font-bold">ENTRAR COMO VENDEDOR</button>
-            <button onclick="entrar('comprador')" class="w-full border-2 border-blue-600 text-blue-600 p-4 rounded font-bold">ENTRAR COMO COMPRADOR</button>
+    <!-- TELA DE LOGIN / SELEÇÃO -->
+    <div id="login-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center p-6">
+        <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-200 mb-6">
+            <i class="fas fa-box-open text-white text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Entrega Fácil</h1>
+        <p class="text-gray-500 text-center mb-10 max-w-xs">O marketplace exclusivo para moradores do seu condomínio.</p>
+        
+        <div class="w-full space-y-4 max-w-sm">
+            <button onclick="iniciarApp('comprador')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-xl shadow-blue-100 flex items-center justify-center gap-3">
+                <i class="fas fa-shopping-bag"></i> Entrar como Comprador
+            </button>
+            <button onclick="iniciarApp('vendedor')" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3">
+                <i class="fas fa-store"></i> Painel do Vendedor
+            </button>
         </div>
     </div>
 
-    <!-- TELA DO APP -->
-    <div id="tela_app" style="display: none;" class="p-4">
-        <div class="bg-white p-4 rounded shadow flex justify-between mb-4">
-            <span id="txt_perfil" class="font-bold uppercase text-blue-600"></span>
-            <button onclick="location.reload()" class="text-red-500">Sair</button>
+    <!-- HEADER -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 p-4 border-b border-gray-100">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Condomínio Solar</p>
+                <h2 class="text-lg font-extrabold text-gray-800 leading-tight" id="user-greeting">Olá, Morador!</h2>
+            </div>
+            <button onclick="abrirCarrinho()" class="relative w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-700" id="cart-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO COMPRADOR -->
+    <main id="view-comprador" class="container mx-auto p-4 hidden">
+        <!-- Busca -->
+        <div class="relative mb-6">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="O que você procura hoje?" class="w-full bg-white border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <!-- AREA VENDEDOR -->
-        <div id="area_vendedor" style="display: none;">
-            <div class="bg-white p-4 rounded shadow">
-                <h2 class="font-bold mb-2">Novo Produto</h2>
-                <input id="n" placeholder="Nome" class="border p-2 w-full mb-2">
-                <input id="p" placeholder="Preço" type="number" class="border p-2 w-full mb-2">
-                <button onclick="add()" class="w-full bg-green-500 text-white p-2 rounded">CADASTRAR</button>
+        <!-- Categorias -->
+        <div class="flex gap-3 overflow-x-auto no-scrollbar mb-8">
+            <button class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm">Todos</button>
+            <button class="bg-white text-gray-500 px-6 py-2 rounded-xl font-bold text-sm shadow-sm">🍔 Comida</button>
+            <button class="bg-white text-gray-500 px-6 py-2 rounded-xl font-bold text-sm shadow-sm">🛠️ Serviços</button>
+            <button class="bg-white text-gray-500 px-6 py-2 rounded-xl font-bold text-sm shadow-sm">👕 Roupas</button>
+        </div>
+
+        <h3 class="font-extrabold text-gray-900 text-xl mb-4">Destaques do Prédio</h3>
+        <div id="vitrine" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    </main>
+
+    <!-- CONTEÚDO VENDEDOR -->
+    <main id="view-vendedor" class="container mx-auto p-4 hidden">
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-8">
+            <h3 class="font-bold text-lg mb-4">Anunciar Produto</h3>
+            <div class="space-y-3">
+                <input id="v-nome" type="text" placeholder="Nome do item" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex gap-2">
+                    <input id="v-preco" type="number" placeholder="Preço R$" class="w-1/2 p-4 bg-gray-50 rounded-2xl outline-none">
+                    <input id="v-estoque" type="number" placeholder="Estoque" class="w-1/2 p-4 bg-gray-50 rounded-2xl outline-none">
+                </div>
+                <button onclick="cadastrarProduto()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 mt-2">Publicar Agora</button>
             </div>
         </div>
+        <h3 class="font-bold text-gray-900 mb-4">Meus Anúncios</h3>
+        <div id="lista-vendedor" class="space-y-3"></div>
+    </main>
 
-        <!-- AREA COMPRADOR -->
-        <div id="area_comprador" style="display: none;">
-            <h2 class="font-bold mb-4">Vitrine de Vizinhos</h2>
-            <div id="vitrine" class="space-y-2"></div>
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 flex justify-around items-center z-50">
+        <button onclick="tab('comprador')" class="flex flex-col items-center gap-1 text-gray-400 active-tab">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold">Início</span>
+        </button>
+        <button onclick="tab('vendedor')" class="flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-plus-circle text-xl"></i>
+            <span class="text-[10px] font-bold">Vender</span>
+        </button>
+        <button onclick="location.reload()" class="flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-user-circle text-xl"></i>
+            <span class="text-[10px] font-bold">Perfil</span>
+        </button>
+    </nav>
+
+    <!-- CARRINHO MODAL -->
+    <div id="modal-carrinho" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-extrabold text-gray-900">Seu Carrinho</h2>
+                <button onclick="abrirCarrinho()" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="carrinho-itens" class="flex-1 overflow-y-auto space-y-4"></div>
+            <div class="border-t pt-6 mt-6">
+                <div class="flex justify-between text-xl font-bold mb-6">
+                    <span>Total:</span>
+                    <span id="carrinho-total" class="text-blue-600">R$ 0,00</span>
+                </div>
+                <button onclick="finalizarCompra()" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-bold text-lg shadow-xl shadow-blue-100">Finalizar Pedido</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Teste de carregamento
-        console.log("Sistema pronto!");
-
-        let dados = [
-            {nome: "Bolo", preco: 10, dono: "Apto 10"},
-            {nome: "Suco", preco: 5, dono: "Apto 20"}
+        let produtos = [
+            { id: 1, nome: "Bolo Caseiro de Milho", preco: 18.0, estoque: 4, autor: "Apto 402", img: "https://images.unsplash.com/photo-1605807646983-377bc5a76493?w=400" },
+            { id: 2, nome: "Manutenção de Ar-condicionado", preco: 120.0, estoque: 1, autor: "Apto 105", img: "https://images.unsplash.com/photo-1581094288338-2314dddb7ec3?w=400" }
         ];
+        let carrinho = [];
 
-        function entrar(tipo) {
-            // Esconde seleção, mostra app
-            document.getElementById('tela_selecao').style.display = 'none';
-            document.getElementById('tela_app').style.display = 'block';
-            document.getElementById('txt_perfil').innerText = "Perfil: " + tipo;
+        function iniciarApp(perfil) {
+            document.getElementById('login-screen').classList.add('hidden');
+            tab(perfil);
+        }
 
-            if(tipo === 'vendedor') {
-                document.getElementById('area_vendedor').style.display = 'block';
-                document.getElementById('area_comprador').style.display = 'none';
+        function tab(perfil) {
+            document.getElementById('view-comprador').classList.add('hidden');
+            document.getElementById('view-vendedor').classList.add('hidden');
+            document.getElementById('cart-btn').classList.toggle('hidden', perfil === 'vendedor');
+            
+            if(perfil === 'comprador') {
+                document.getElementById('view-comprador').classList.remove('hidden');
+                document.getElementById('user-greeting').innerText = "Olá, Comprador!";
+                renderComprador();
             } else {
-                document.getElementById('area_comprador').style.display = 'block';
-                document.getElementById('area_vendedor').style.display = 'none';
-                mostrarVitrine();
+                document.getElementById('view-vendedor').classList.remove('hidden');
+                document.getElementById('user-greeting').innerText = "Meu Negócio";
+                renderVendedor();
             }
         }
 
-        function add() {
-            let nome = document.getElementById('n').value;
-            let preco = document.getElementById('p').value;
-            if(!nome || !preco) return alert("Preencha os campos");
+        function cadastrarProduto() {
+            const nome = document.getElementById('v-nome').value;
+            const preco = parseFloat(document.getElementById('v-preco').value);
+            const estoque = parseInt(document.getElementById('v-estoque').value);
+
+            if(!nome || !preco) return alert("Preencha os campos!");
+
+            produtos.push({ 
+                id: Date.now(), 
+                nome, 
+                preco, 
+                estoque, 
+                autor: "Meu Apto",
+                img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" 
+            });
             
-            dados.push({nome: nome, preco: preco, dono: "Meu Apto"});
-            alert("Produto cadastrado com sucesso!");
-            document.getElementById('n').value = "";
-            document.getElementById('p').value = "";
+            alert("Produto publicado!");
+            renderVendedor();
+            document.getElementById('v-nome').value = "";
+            document.getElementById('v-preco').value = "";
+            document.getElementById('v-estoque').value = "";
         }
 
-        function mostrarVitrine() {
-            let lista = document.getElementById('vitrine');
-            lista.innerHTML = "";
-            dados.forEach(item => {
-                lista.innerHTML += `
-                    <div class="bg-white p-4 rounded shadow flex justify-between items-center">
-                        <div>
-                            <b>${item.nome}</b><br>R$ ${item.preco} 
-                            <small class="block text-gray-400">${item.dono}</small>
-                        </div>
-                        <button class="bg-blue-600 text-white px-3 py-1 rounded">Comprar</button>
+        function renderComprador() {
+            const vitrine = document.getElementById('vitrine');
+            vitrine.innerHTML = produtos.map(p => `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+                    <div class="h-40 w-full overflow-hidden bg-gray-200">
+                        <img src="${p.img}" class="w-full h-full object-cover">
                     </div>
-                `;
-            });
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-extrabold text-gray-800 leading-tight">${p.nome}</h4>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">${p.autor}</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-xl font-bold text-gray-900">R$ ${p.preco.toFixed(2)}</span>
+                            <button onclick="addCarrinho(${p.id})" class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderVendedor() {
+            const list = document.getElementById('lista-vendedor');
+            const meusProd = produtos.filter(p => p.autor === "Meu Apto");
+            list.innerHTML = meusProd.length ? meusProd.map(p => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-100">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">${p.nome}</h4>
+                        <span class="text-blue-600 font-bold">R$ ${p.preco.toFixed(2)}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 block uppercase italic text-right">Estoque</span>
+                        <span class="font-bold text-gray-800">${p.estoque}</span>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-gray-400 text-sm italic">Você não tem produtos cadastrados.</p>';
+        }
+
+        function addCarrinho(id) {
+            const p = produtos.find(x => x.id === id);
+            if(p.estoque <= 0) return alert("Esgotado!");
+
+            const jaTem = carrinho.find(x => x.id === id);
+            if(jaTem) jaTem.qtd++;
+            else carrinho.push({...p, qtd: 1});
+
+            const btn = document.getElementById('cart-btn');
+            btn.classList.add('cart-bounce');
+            setTimeout(() => btn.classList.remove('cart-bounce'), 300);
+            
+            atualizarCarrinhoUI();
+        }
+
+        function atualizarCarrinhoUI() {
+            document.getElementById('cart-count').innerText = carrinho.reduce((a, b) => a + b.qtd, 0);
+            const container = document.getElementById('carrinho-itens');
+            let total = 0;
+
+            if(carrinho.length === 0) {
+                container.innerHTML = `<div class="text-center mt-20 text-gray-400"><i class="fas fa-shopping-basket text-4xl mb-4 opacity-20"></i><p>Carrinho vazio</p></div>`;
+            } else {
+                container.innerHTML = carrinho.map(item => {
+                    total += (item.preco * item.qtd);
+                    return `
+                        <div class="flex gap-4 bg-gray-50 p-3 rounded-2xl">
+                            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 text-sm">${item.nome}</h4>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-blue-600 font-bold">${item.qtd}x R$ ${item.preco.toFixed(2)}</span>
+                                    <button onclick="removerItem(${item.id})" class="text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('carrinho-total').innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        function removerItem(id) {
+            carrinho = carrinho.filter(x => x.id !== id);
+            atualizarCarrinhoUI();
+        }
+
+        function abrirCarrinho() {
+            document.getElementById('modal-carrinho').classList.toggle('hidden');
+            atualizarCarrinhoUI();
+        }
+
+        function finalizarCompra() {
+            if(!carrinho.length) return;
+            alert("Pedido enviado para seus vizinhos! Combine a entrega via chat (em breve).");
+            carrinho = [];
+            atualizarCarrinhoUI();
+            abrirCarrinho();
         }
     </script>
 </body>
