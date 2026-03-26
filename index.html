@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrega Fácil - Condomínio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hidden { display: none !important; }
+        body { background-color: #f8fafc; }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE SELEÇÃO INICIAL -->
+    <div id="selection-screen" class="fixed inset-0 bg-blue-600 flex items-center justify-center z-[100] px-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20">
+            <i class="fas fa-box-open text-5xl text-blue-600 mb-4"></i>
+            <h1 class="text-3xl font-bold mb-2 text-gray-800">Entrega Fácil</h1>
+            <p class="text-gray-500 mb-8">Como você deseja acessar hoje?</p>
+            
+            <div class="grid gap-4">
+                <button onclick="setRole('vendedor')" class="flex items-center justify-between p-4 border-2 border-gray-100 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition group">
+                    <div class="text-left">
+                        <span class="block font-bold text-lg group-hover:text-blue-700">Sou Vendedor</span>
+                        <span class="text-sm text-gray-400 font-normal">Cadastrar meus produtos</span>
+                    </div>
+                    <i class="fas fa-store text-2xl text-gray-300 group-hover:text-blue-500"></i>
+                </button>
+
+                <button onclick="setRole('comprador')" class="flex items-center justify-between p-4 border-2 border-gray-100 rounded-2xl hover:border-green-500 hover:bg-green-50 transition group">
+                    <div class="text-left">
+                        <span class="block font-bold text-lg group-hover:text-green-700">Sou Comprador</span>
+                        <span class="text-sm text-gray-400 font-normal">Ver produtos dos vizinhos</span>
+                    </div>
+                    <i class="fas fa-shopping-basket text-2xl text-gray-300 group-hover:text-green-500"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header id="main-header" class="bg-white shadow-sm sticky top-0 z-50 hidden">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                <div class="bg-blue-600 text-white p-2 rounded-lg"><i class="fas fa-exchange-alt"></i></div>
+                <h2 class="font-bold text-xl text-gray-800" id="role-title">Entrega Fácil</h2>
+            </div>
+            <div class="text-sm font-semibold text-gray-500">
+                <i class="fas fa-map-marker-alt text-red-500"></i> Bloco A, Apto 102
+            </div>
+        </div>
+    </header>
+
+    <!-- INTERFACE DO VENDEDOR -->
+    <main id="seller-view" class="container mx-auto px-4 py-8 hidden">
+        <div class="max-w-xl mx-auto">
+            <div class="bg-white p-6 rounded-2xl shadow-md border mb-8">
+                <h2 class="text-xl font-bold mb-4 text-blue-800"><i class="fas fa-plus-circle mr-2"></i>Novo Anúncio</h2>
+                <form onsubmit="addProduct(event)" class="space-y-4">
+                    <input type="text" id="p-name" required placeholder="Nome do produto" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-blue-500">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" step="0.01" id="p-price" required placeholder="Preço R$" class="p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-blue-500">
+                        <input type="number" id="p-stock" required placeholder="Estoque" class="p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200">Publicar Agora</button>
+                </form>
+            </div>
+            <h3 class="font-bold text-gray-700 mb-4">Meus Produtos Cadastrados</h3>
+            <div id="my-products-list" class="space-y-3"></div>
+        </div>
+    </main>
+
+    <!-- INTERFACE DO COMPRADOR -->
+    <main id="buyer-view" class="container mx-auto px-4 py-8 hidden">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Vitrine do Condomínio</h2>
+        <div id="marketplace-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    </main>
+
+    <script>
+        // Dados iniciais
+        let products = [
+            { id: 1, name: 'Pão Italiano', price: 18.00, stock: 5, seller: 'Apto 42' },
+            { id: 2, name: 'Brownie Caseiro', price: 7.50, stock: 12, seller: 'Apto 105' }
+        ];
+
+        function setRole(role) {
+            document.getElementById('selection-screen').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            
+            if (role === 'vendedor') {
+                document.getElementById('seller-view').classList.remove('hidden');
+                document.getElementById('role-title').innerText = "Painel Vendedor";
+                renderSellerItems();
+            } else {
+                document.getElementById('buyer-view').classList.remove('hidden');
+                document.getElementById('role-title').innerText = "Marketplace";
+                renderMarketplace();
+            }
+        }
+
+        function addProduct(e) {
+            e.preventDefault();
+            const newProd = {
+                id: Date.now(),
+                name: document.getElementById('p-name').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                stock: parseInt(document.getElementById('p-stock').value),
+                seller: 'Meu Apto'
+            };
+            products.push(newProd);
+            e.target.reset();
+            renderSellerItems
